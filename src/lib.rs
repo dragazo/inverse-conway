@@ -1,5 +1,6 @@
 #![no_std]
 #![forbid(unsafe_code)]
+#![doc = include_str!("../README.md")]
 
 #[macro_use] extern crate alloc;
 
@@ -9,6 +10,7 @@ use alloc::vec::Vec;
 use z3::{Context, Solver, SatResult};
 use z3::ast::{Ast, Bool, Int};
 
+/// A finite tile map for Conway's game of life.
 #[derive(Clone, PartialEq, Eq)]
 pub struct Conway {
     rows: usize,
@@ -16,6 +18,7 @@ pub struct Conway {
     data: Vec<bool>,
 }
 impl Conway {
+    /// Creates a new, empty board devoid of all life and purpose.
     pub fn new(mut rows: usize, mut cols: usize) -> Self {
         if rows == 0 || cols == 0 {
             (rows, cols) = (0, 0);
@@ -23,6 +26,7 @@ impl Conway {
 
         Self { rows, cols, data: vec![false; rows * cols] }
     }
+    /// Gets the value of a tile.
     pub fn get(&self, row: usize, col: usize) -> Result<bool, ()> {
         if row < self.rows && col < self.cols {
             Ok(self.data[row * self.cols + col])
@@ -30,6 +34,7 @@ impl Conway {
             Err(())
         }
     }
+    /// Sets the value of a tile.
     pub fn set(&mut self, row: usize, col: usize, value: bool) -> Result<(), ()> {
         if row < self.rows && col < self.cols {
             self.data[row * self.cols + col] = value;
@@ -38,6 +43,7 @@ impl Conway {
             Err(())
         }
     }
+    /// Increases the board size by `padding` in all directions.
     pub fn inflate(&self, padding: usize) -> Self {
         let mut res = Self::new(self.rows + 2 * padding, self.cols + 2 * padding);
         for row in 0..self.rows {
@@ -47,6 +53,7 @@ impl Conway {
         }
         res
     }
+    /// Performs a forward pass in time. Boring.
     pub fn forward(&self, steps: usize) -> Self {
         let mut res = self.clone();
         for _ in 0..steps {
@@ -66,6 +73,10 @@ impl Conway {
         }
         res
     }
+    /// Performs a backward pass in time. Now we're talkin'!
+    ///
+    /// Not all board states are reachable, so this can fail with [`None`].
+    /// Additionally, the operation is not separable, so `backward(1)` followed by `backward(1)` may fail even if `backward(2)` would succeed.
     pub fn backward(&self, steps: usize) -> Option<Self> {
         let context = Context::new(&Default::default());
 

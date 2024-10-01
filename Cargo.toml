@@ -2,6 +2,11 @@
 name = "inverse-conway"
 version = "0.1.0"
 edition = "2021"
+license = "MIT OR Apache-2.0"
+authors = ["Devin Jean <emailcruzjean@yahoo.com>"]
+repository = "https://github.com/dragazo/inverse-conway"
+documentation = "https://docs.rs/inverse-conway"
+description = "Conway but backward"
 
 [dependencies]
 z3 = "0.12.1"
